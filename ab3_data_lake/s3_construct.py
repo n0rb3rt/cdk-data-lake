@@ -6,13 +6,12 @@ import aws_cdk.aws_iam as iam
 
 class S3Construct(Construct):
 
-    def __init__(self, scope: Construct, id: str, **kwargs):
+    def __init__(self, scope: Construct, id: str, env_prefix: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         account_principal = iam.AccountPrincipal(cdk.Aws.ACCOUNT_ID)
-        bucket_prefix = 'jnme-ab3-v1'
 
-        s3_kms_key = kms.Key(
+        self.s3_kms_key = kms.Key(
             self,
             'OctankKmsKey',
             admins=[account_principal],
@@ -21,7 +20,7 @@ class S3Construct(Construct):
             alias='octank-kms-key'
         )
         
-        s3_kms_key.add_to_resource_policy(
+        self.s3_kms_key.add_to_resource_policy(
             iam.PolicyStatement(
                 principals=[account_principal],
                 actions=[
@@ -35,15 +34,26 @@ class S3Construct(Construct):
             )
         )
         
-        logs_bucket = s3.Bucket(
+        self.logs_bucket = s3.Bucket(
             self,
             id='octank_logs_bucket',
             access_control=s3.BucketAccessControl.LOG_DELIVERY_WRITE,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             bucket_key_enabled=True,
-            bucket_name=f'{bucket_prefix}logs',
+            bucket_name=f'{env_prefix}logs',
             encryption=s3.BucketEncryption.KMS,
-            encryption_key=s3_kms_key,
+            encryption_key=self.s3_kms_key,
+            public_read_access=False,
+            removal_policy=cdk.RemovalPolicy.DESTROY,
+            versioned=True,
+            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED
+        )
+
+        self.scripts_bucket = s3.Bucket(
+            self,
+            id='octank_scripts_bucket',
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            bucket_name=f'{env_prefix}scripts',
             public_read_access=False,
             removal_policy=cdk.RemovalPolicy.DESTROY,
             versioned=True,
@@ -62,35 +72,71 @@ class S3Construct(Construct):
             noncurrent_version_expiration=cdk.Duration.days(90),
             transitions=[
                 s3.Transition(
+                    storage_class=s3.StorageClass.INFREQUENT_ACCESS,
+                    transition_after=cdk.Duration.days(180)
+                ),
+                s3.Transition(
                     storage_class=s3.StorageClass.GLACIER,
                     transition_after=cdk.Duration.days(365)
                 )
             ]
         )
 
-        ingest_bucket = self.create_bucket(
+        self.ingest_bucket = self.create_bucket(
             'octank_ingest_bucket', 
-            f'{bucket_prefix}ingest', 
-            s3_kms_key,
-            logs_bucket, 
+            f'{env_prefix}ingest', 
+            self.s3_kms_key,
+            self.logs_bucket, 
             ingest_lifecycle
         )
 
-        clean_bucket = self.create_bucket(
+        self.clean_bucket = self.create_bucket(
             'octank_clean_bucket',
-            f'{bucket_prefix}clean',
-            s3_kms_key,
-            logs_bucket,
+            f'{env_prefix}clean',
+            self.s3_kms_key,
+            self.logs_bucket,
             retention_lifecycle
         )
 
-        publish_bucket = self.create_bucket(
+        self.publish_bucket = self.create_bucket(
             'octank_publish_bucket',
-            f'{bucket_prefix}clean',
-            s3_kms_key,
-            logs_bucket,
+            f'{env_prefix}publish',
+            self.s3_kms_key,
+            self.logs_bucket,
             retention_lifecycle
         )
+
+        cdk.CfnOutput(
+            self,
+            'KmsKeyArn',
+            value=self.s3_kms_key.key_arn,
+            export_name='S3KmsKeyArn'
+        )
+        cdk.CfnOutput(
+            self,
+            'AccessLogBucketName',
+            value=self.logs_bucket.bucket_name,
+            export_name='S3AccessLogsBucket'
+        )
+        cdk.CfnOutput(
+            self,
+            'IngestBucketName',
+            value=self.ingest_bucket.bucket_name,
+            export_name='S3IngestBucket'
+        )
+        cdk.CfnOutput(
+            self,
+            'S3CleanBucketName',
+            value=self.clean_bucket.bucket_name,
+            export_name='S3CleanBucket'
+        )
+        cdk.CfnOutput(
+            self,
+            'S3PublishBucketName',
+            value=self.publish_bucket.bucket_name,
+            export_name='S3PublishBucket'
+        )
+
 
     def create_bucket(
         self, 

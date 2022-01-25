@@ -29,6 +29,7 @@ class VpcConstruct(Construct):
                 )
             ]
         )
+        
         security_group = ec2.SecurityGroup(
             self,
             'OctankSecurityGroup',
@@ -41,6 +42,7 @@ class VpcConstruct(Construct):
             connection=ec2.Port.all_traffic(),
             description='Self-referencing ingress rule'
         )
+        
         vpc.add_gateway_endpoint(
             'S3Endpoint', 
             service=ec2.GatewayVpcEndpointAwsService.S3
@@ -60,47 +62,47 @@ class VpcConstruct(Construct):
             self,
             'Vpc',
             value=vpc.vpc_id,
-            export_name='vpc_id'
+            export_name='VpcId'
         )
         cdk.CfnOutput(
             self,
             'VpcAvailabilityZone1',
             value=vpc.availability_zones[0],
-            export_name='az1'
+            export_name='AvailabilityZone1'
         )
         cdk.CfnOutput(
             self,
             'VpcAvailabilityZone2',
             value=vpc.availability_zones[1],
-            export_name='az2'
+            export_name='AvailabilityZone2'
         )
         cdk.CfnOutput(
             self,
             'VpcPrivateSubnet',
             value=vpc.private_subnets[0].subnet_id,
-            export_name='private_subnet'
+            export_name='PrivateSubnet'
         )
         cdk.CfnOutput(
             self,
             'VpcPublicSubnet',
             value=vpc.public_subnets[0].subnet_id,
-            export_name='public_subnet'
+            export_name='PublicSubnet'
         )
         cdk.CfnOutput(
             self,
             'VpcRouteTable1',
             value=vpc.private_subnets[0].route_table.route_table_id,
-            export_name='private_route_table'
+            export_name='PrivateRouteTable'
         )
         cdk.CfnOutput(
             self,
             'VpcRouteTable2',
             value=vpc.public_subnets[0].route_table.route_table_id,
-            export_name='public_route_table'
+            export_name='PublicRouteTable'
         )
         cdk.CfnOutput(
             self,
             'SecurityGroup',
             value=security_group.security_group_id,
-            export_name='security_group_id'
+            export_name='SecurityGroupId'
         )
