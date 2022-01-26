@@ -6,6 +6,7 @@
   "settings": {
     "python.pythonPath": "/usr/local/bin/python",
     "python.languageServer": "Pylance",
+    "python.formatting.provider": "black",
     "python.linting.enabled": true,
     "editor.formatOnSave": true,
   },
