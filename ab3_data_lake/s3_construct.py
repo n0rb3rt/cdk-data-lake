@@ -6,59 +6,10 @@ import aws_cdk.aws_iam as iam
 
 
 class S3Construct(Construct):
-    def __init__(self, scope: Construct, id: str, env_prefix: str, **kwargs):
+    def __init__(self, scope: Construct, id: str, env_name: str, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         account_principal = iam.AccountPrincipal(cdk.Aws.ACCOUNT_ID)
-
-        self.s3_kms_key = kms.Key(
-            self,
-            "OctankKmsKey",
-            admins=[account_principal],
-            description="Encryption key for data lake S3 buckets",
-            removal_policy=cdk.RemovalPolicy.DESTROY,
-            alias="octank-kms-key",
-        )
-
-        self.s3_kms_key.add_to_resource_policy(
-            iam.PolicyStatement(
-                principals=[account_principal],
-                actions=[
-                    "kms:Encrypt",
-                    "kms:Decrypt",
-                    "ksm:ReEncrypt*",
-                    "kms:GenerateDataKey*",
-                    "kms:DescribeKey",
-                ],
-                resources=["*"],
-            )
-        )
-
-        self.logs_bucket = s3.Bucket(
-            self,
-            id="octank_logs_bucket",
-            access_control=s3.BucketAccessControl.LOG_DELIVERY_WRITE,
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            bucket_key_enabled=True,
-            bucket_name=f"{env_prefix}logs",
-            encryption=s3.BucketEncryption.KMS,
-            encryption_key=self.s3_kms_key,
-            public_read_access=False,
-            removal_policy=cdk.RemovalPolicy.DESTROY,
-            versioned=True,
-            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
-        )
-
-        self.scripts_bucket = s3.Bucket(
-            self,
-            id="octank_scripts_bucket",
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            bucket_name=f"{env_prefix}scripts",
-            public_read_access=False,
-            removal_policy=cdk.RemovalPolicy.DESTROY,
-            versioned=True,
-            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
-        )
 
         ingest_lifecycle = s3.LifecycleRule(
             enabled=True,
@@ -82,25 +33,73 @@ class S3Construct(Construct):
             ],
         )
 
+        self.s3_kms_key = kms.Key(
+            self,
+            f"{env_name}-OctankKmsKey",
+            admins=[account_principal],
+            description="Encryption key for data lake S3 buckets",
+            removal_policy=cdk.RemovalPolicy.DESTROY
+        )
+
+        self.s3_kms_key.add_to_resource_policy(
+            iam.PolicyStatement(
+                principals=[account_principal],
+                actions=[
+                    "kms:Encrypt",
+                    "kms:Decrypt",
+                    "ksm:ReEncrypt*",
+                    "kms:GenerateDataKey*",
+                    "kms:DescribeKey",
+                ],
+                resources=["*"],
+            )
+        )
+
+        self.logs_bucket = s3.Bucket(
+            self,
+            id=f"{env_name}-octank_logs_bucket",
+            access_control=s3.BucketAccessControl.LOG_DELIVERY_WRITE,
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            bucket_key_enabled=True,
+            bucket_name=f"{env_name}-logs",
+            encryption=s3.BucketEncryption.KMS,
+            encryption_key=self.s3_kms_key,
+            public_read_access=False,
+            removal_policy=cdk.RemovalPolicy.DESTROY,
+            versioned=True,
+            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
+        )
+
+        self.scripts_bucket = s3.Bucket(
+            self,
+            id=f"{env_name}-octank_scripts_bucket",
+            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
+            bucket_name=f"{env_name}-scripts",
+            public_read_access=False,
+            removal_policy=cdk.RemovalPolicy.DESTROY,
+            versioned=True,
+            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
+        )
+
         self.ingest_bucket = self.create_bucket(
-            "octank_ingest_bucket",
-            f"{env_prefix}ingest",
+            f"{env_name}-octank_ingest_bucket",
+            f"{env_name}-ingest",
             self.s3_kms_key,
             self.logs_bucket,
             ingest_lifecycle,
         )
 
         self.clean_bucket = self.create_bucket(
-            "octank_clean_bucket",
-            f"{env_prefix}clean",
+            f"{env_name}-octank_clean_bucket",
+            f"{env_name}-clean",
             self.s3_kms_key,
             self.logs_bucket,
             retention_lifecycle,
         )
 
         self.publish_bucket = self.create_bucket(
-            "octank_publish_bucket",
-            f"{env_prefix}publish",
+            f"{env_name}-octank_publish_bucket",
+            f"{env_name}-publish",
             self.s3_kms_key,
             self.logs_bucket,
             retention_lifecycle,
