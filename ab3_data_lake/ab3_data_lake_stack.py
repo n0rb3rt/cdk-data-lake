@@ -1,16 +1,10 @@
 from constructs import Construct
-from aws_cdk import (
-    Duration,
-    Stack,
-    aws_iam as iam,
-    aws_sqs as sqs,
-    aws_sns as sns,
-    aws_sns_subscriptions as subs,
-)
-from .glue_construct import GlueETLConstruct
-from .s3_construct import S3Construct
-from .vpc_construct import VpcConstruct
+from aws_cdk import Stack
 
+from .vpc_construct import VpcConstruct
+from .s3_construct import S3Construct
+from .glue_construct import GlueConstruct
+from .workflow_construct import WorkflowConstruct
 
 class Ab3DataLakeStack(Stack):
 
@@ -21,4 +15,5 @@ class Ab3DataLakeStack(Stack):
 
         vpc = VpcConstruct(self, 'OctankVpcConstruct', env_name, **kwargs)
         s3 = S3Construct(self, 'OctankS3Construct', env_name, **kwargs)
-        glue = GlueETLConstruct(self, 'OctankGlueConstruct', env_name, s3, **kwargs)
+        glue = GlueConstruct(self, 'OctankGlueConstruct', env_name, s3, **kwargs)
+        workflow = WorkflowConstruct(self, 'OctankWorkflowConstruct', env_name, glue, **kwargs)
