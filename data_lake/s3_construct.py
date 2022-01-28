@@ -35,7 +35,7 @@ class S3Construct(Construct):
 
         self.s3_kms_key = kms.Key(
             self,
-            f"{env_name}-OctankKmsKey",
+            f"{env_name}-KmsKey",
             admins=[account_principal],
             description="Encryption key for data lake S3 buckets",
             removal_policy=cdk.RemovalPolicy.DESTROY
@@ -57,7 +57,7 @@ class S3Construct(Construct):
 
         self.logs_bucket = s3.Bucket(
             self,
-            id=f"{env_name}-octank_logs_bucket",
+            id=f"{env_name}-LogsBucket",
             access_control=s3.BucketAccessControl.LOG_DELIVERY_WRITE,
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             bucket_key_enabled=True,
@@ -72,7 +72,7 @@ class S3Construct(Construct):
 
         self.scripts_bucket = s3.Bucket(
             self,
-            id=f"{env_name}-octank_scripts_bucket",
+            id=f"{env_name}-ScriptsBucket",
             block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
             bucket_name=f"{env_name}-scripts",
             public_read_access=False,
@@ -82,7 +82,7 @@ class S3Construct(Construct):
         )
 
         self.ingest_bucket = self.create_bucket(
-            f"{env_name}-octank_ingest_bucket",
+            f"{env_name}-IngestBucket",
             f"{env_name}-ingest",
             self.s3_kms_key,
             self.logs_bucket,
@@ -90,7 +90,7 @@ class S3Construct(Construct):
         )
 
         self.clean_bucket = self.create_bucket(
-            f"{env_name}-octank_clean_bucket",
+            f"{env_name}-CleanBucket",
             f"{env_name}-clean",
             self.s3_kms_key,
             self.logs_bucket,
@@ -98,7 +98,7 @@ class S3Construct(Construct):
         )
 
         self.publish_bucket = self.create_bucket(
-            f"{env_name}-octank_publish_bucket",
+            f"{env_name}-PublishBucket",
             f"{env_name}-publish",
             self.s3_kms_key,
             self.logs_bucket,
