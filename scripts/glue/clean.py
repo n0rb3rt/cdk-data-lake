@@ -71,16 +71,5 @@ datasink4 = glueContext.write_dynamic_frame.from_options(
     transformation_ctx = "datasink1"
 )
 
-# sink = glueContext.getSink(
-#     connection_type="s3", 
-#     path=out_path,
-#     enableUpdateCatalog=True, 
-#     updateBehavior="UPDATE_IN_DATABASE",
-#     partitionKeys=["year"]
-# )
-# sink.setFormat("glueparquet")
-# sink.setCatalogInfo(catalogDatabase=args["target_bucket"], catalogTableName=args["source_table"])
-# sink.writeFrame(applymapping1)
-
 job.commit()
 

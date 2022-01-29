@@ -17,7 +17,8 @@ class WorkflowConstruct(Construct):
 
         crawl_ingest_trigger = glue.CfnTrigger(
             self,
-            f"{env_name}-CrawlIngestTrigger",
+            id=f"{env_name}-CrawlIngestTrigger",
+            name=f"{env_name}-CrawlIngestTrigger",
             workflow_name=self.workflow.name,
             type="ON_DEMAND", #TODO: scheduled
             actions=[glue.CfnTrigger.ActionProperty(crawler_name=glue_struct.ingest_crawler.name)]
@@ -25,7 +26,8 @@ class WorkflowConstruct(Construct):
 
         run_clean_trigger = glue.CfnTrigger(
             self,
-            f"{env_name}-CleanJobTrigger",
+            id=f"{env_name}-CleanJobTrigger",
+            name=f"{env_name}-CleanJobTrigger",
             workflow_name=self.workflow.name,
             type="CONDITIONAL",
             predicate=glue.CfnTrigger.PredicateProperty(
@@ -34,14 +36,18 @@ class WorkflowConstruct(Construct):
                         crawler_name=glue_struct.ingest_crawler.name,
                         logical_operator="EQUALS",
                         crawl_state="SUCCEEDED"
-                    )]
+                    )
+                ],
+                logical="ANY"
             ),
-            actions=[glue.CfnTrigger.ActionProperty(job_name=glue_struct.clean_job.name)]
+            actions=[glue.CfnTrigger.ActionProperty(job_name=glue_struct.clean_job.name)],
+            start_on_creation=True
         )
 
         crawl_clean_trigger = glue.CfnTrigger(
             self,
-            f"{env_name}-CleanCrawlTrigger",
+            id=f"{env_name}-CleanCrawlTrigger",
+            name=f"{env_name}-CleanCrawlTrigger",
             workflow_name=self.workflow.name,
             type="CONDITIONAL",
             predicate=glue.CfnTrigger.PredicateProperty(
@@ -50,9 +56,12 @@ class WorkflowConstruct(Construct):
                         job_name=glue_struct.clean_job.name,
                         logical_operator="EQUALS",
                         state="SUCCEEDED"
-                    )]
+                    )
+                ],
+                logical="ANY"
             ),
-            actions=[glue.CfnTrigger.ActionProperty(crawler_name=glue_struct.clean_crawler.name)]
+            actions=[glue.CfnTrigger.ActionProperty(crawler_name=glue_struct.clean_crawler.name)],
+            start_on_creation=True
         )
 
         crawl_ingest_trigger.add_depends_on(glue_struct.ingest_crawler)
