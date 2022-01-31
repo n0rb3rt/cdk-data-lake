@@ -15,7 +15,7 @@ class WorkflowConstruct(Construct):
             name=f"{env_name}-Workflow"
         )
 
-        crawl_ingest_trigger = glue.CfnTrigger(
+        self.crawl_ingest_trigger = glue.CfnTrigger(
             self,
             id=f"{env_name}-CrawlIngestTrigger",
             name=f"{env_name}-CrawlIngestTrigger",
@@ -24,7 +24,7 @@ class WorkflowConstruct(Construct):
             actions=[glue.CfnTrigger.ActionProperty(crawler_name=glue_struct.ingest_crawler.name)]
         )
 
-        run_clean_trigger = glue.CfnTrigger(
+        self.run_clean_trigger = glue.CfnTrigger(
             self,
             id=f"{env_name}-CleanJobTrigger",
             name=f"{env_name}-CleanJobTrigger",
@@ -44,7 +44,7 @@ class WorkflowConstruct(Construct):
             start_on_creation=True
         )
 
-        crawl_clean_trigger = glue.CfnTrigger(
+        self.crawl_clean_trigger = glue.CfnTrigger(
             self,
             id=f"{env_name}-CleanCrawlTrigger",
             name=f"{env_name}-CleanCrawlTrigger",
@@ -64,6 +64,6 @@ class WorkflowConstruct(Construct):
             start_on_creation=True
         )
 
-        crawl_ingest_trigger.add_depends_on(glue_struct.ingest_crawler)
-        run_clean_trigger.add_depends_on(glue_struct.clean_job)
-        crawl_clean_trigger.add_depends_on(glue_struct.clean_crawler)
+        self.crawl_ingest_trigger.add_depends_on(glue_struct.ingest_crawler)
+        self.run_clean_trigger.add_depends_on(glue_struct.clean_job)
+        self.crawl_clean_trigger.add_depends_on(glue_struct.clean_crawler)

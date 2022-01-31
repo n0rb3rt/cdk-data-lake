@@ -60,7 +60,7 @@ applymapping1 = ApplyMapping.apply(
     ]
 )
 
-datasink4 = glueContext.write_dynamic_frame.from_options(
+datasink1 = glueContext.write_dynamic_frame.from_options(
     frame=applymapping1, 
     connection_type="s3",
     connection_options={

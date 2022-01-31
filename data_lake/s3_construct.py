@@ -81,6 +81,14 @@ class S3Construct(Construct):
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
         )
 
+        self.query_bucket = self.create_bucket(
+            f"{env_name}-QueryBucket",
+            f"{env_name}-query",
+            self.s3_kms_key,
+            self.logs_bucket,
+            ingest_lifecycle
+        )
+
         self.ingest_bucket = self.create_bucket(
             f"{env_name}-IngestBucket",
             f"{env_name}-ingest",
