@@ -68,6 +68,7 @@ class S3Construct(Construct):
             removal_policy=cdk.RemovalPolicy.DESTROY,
             versioned=True,
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
+            auto_delete_objects=True
         )
 
         self.scripts_bucket = s3.Bucket(
@@ -79,6 +80,7 @@ class S3Construct(Construct):
             removal_policy=cdk.RemovalPolicy.DESTROY,
             versioned=True,
             object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
+            auto_delete_objects=True
         )
 
         self.query_bucket = self.create_bucket(
@@ -172,6 +174,7 @@ class S3Construct(Construct):
             object_ownership=s3.ObjectOwnership.OBJECT_WRITER,
             server_access_logs_bucket=logs_bucket,
             server_access_logs_prefix=bucket_name,
+            auto_delete_objects=True
         )
 
         bucket_policies = [
