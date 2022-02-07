@@ -1,9 +1,8 @@
+from aws_cdk import aws_glue as glue
 from constructs import Construct
-from aws_cdk import (
-    aws_glue as glue
-)
 
 from .glue_construct import GlueConstruct
+
 
 class WorkflowConstruct(Construct):
     def __init__(self, scope: Construct, id: str, env_name: str, glue_struct: GlueConstruct, **kwargs):
@@ -64,6 +63,48 @@ class WorkflowConstruct(Construct):
             start_on_creation=True
         )
 
+        self.run_analyze_trigger = glue.CfnTrigger(
+            self,
+            id=f"{env_name}-AnalyzeJobTrigger",
+            name=f"{env_name}-AnalyzeJobTrigger",
+            workflow_name=self.workflow.name,
+            type="CONDITIONAL",
+            predicate=glue.CfnTrigger.PredicateProperty(
+                conditions=[
+                    glue.CfnTrigger.ConditionProperty(
+                        crawler_name=glue_struct.clean_crawler.name,
+                        logical_operator="EQUALS",
+                        crawl_state="SUCCEEDED"
+                    )
+                ],
+                logical="ANY"
+            ),
+            actions=[glue.CfnTrigger.ActionProperty(job_name=glue_struct.analyze_job.name)],
+            start_on_creation=True
+        )
+
+        self.crawl_publish_trigger = glue.CfnTrigger(
+            self,
+            id=f"{env_name}-PublishCrawlTrigger",
+            name=f"{env_name}-PublishCrawlTrigger",
+            workflow_name=self.workflow.name,
+            type="CONDITIONAL",
+            predicate=glue.CfnTrigger.PredicateProperty(
+                conditions=[
+                    glue.CfnTrigger.ConditionProperty(
+                        job_name=glue_struct.analyze_job.name,
+                        logical_operator="EQUALS",
+                        state="SUCCEEDED"
+                    )
+                ],
+                logical="ANY"
+            ),
+            actions=[glue.CfnTrigger.ActionProperty(crawler_name=glue_struct.publish_crawler.name)],
+            start_on_creation=True
+        )
+
         self.crawl_ingest_trigger.add_depends_on(glue_struct.ingest_crawler)
         self.run_clean_trigger.add_depends_on(glue_struct.clean_job)
         self.crawl_clean_trigger.add_depends_on(glue_struct.clean_crawler)
+        self.run_analyze_trigger.add_depends_on(glue_struct.analyze_job)
+        self.crawl_publish_trigger.add_depends_on(glue_struct.publish_crawler)

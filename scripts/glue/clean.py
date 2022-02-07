@@ -1,7 +1,5 @@
 import sys
-from datetime import datetime
 
-import pytz
 from awsglue import DynamicFrame
 from awsglue.context import GlueContext
 from awsglue.job import Job
@@ -10,7 +8,6 @@ from awsglue.utils import getResolvedOptions
 from pyspark.context import SparkContext
 from pyspark.sql.functions import to_timestamp
 
-## @params: [JOB_NAME]
 args = getResolvedOptions(sys.argv, [
     "JOB_NAME",
     "source_database",
@@ -26,6 +23,7 @@ job.init(args['JOB_NAME'], args)
 logger = glueContext.get_logger()
 
 out_path = f"s3://{args['target_bucket']}/{args['source_table']}"
+
 date_format = "MM/dd/yyyy hh:mm:ss a"
 
 logger.info(f"Transforming {args['source_database']}/{args['source_table']} into {out_path}")
@@ -44,9 +42,9 @@ transform1 = DynamicFrame.fromDF(
         .withColumn("updated on", to_timestamp("updated on", date_format))
 )
 
-applymapping1 = ApplyMapping.apply(
+applymapping2 = ApplyMapping.apply(
     frame = transform1, 
-    transformation_ctx = "applymapping1",
+    transformation_ctx = "applymapping2",
     mappings = [
         ("id", "long", "id", "long"), 
         ("case number", "string", "case_number", "string"), 
@@ -73,15 +71,15 @@ applymapping1 = ApplyMapping.apply(
     ]
 )
 
-datasink1 = glueContext.write_dynamic_frame.from_options(
-    frame=applymapping1, 
+datasink3 = glueContext.write_dynamic_frame.from_options(
+    frame=applymapping2, 
     connection_type="s3",
     connection_options={
         "path": out_path,
         "partitionKeys": ["year"]
     },
     format="parquet",
-    transformation_ctx = "datasink1"
+    transformation_ctx = "datasink3"
 )
 
 job.commit()

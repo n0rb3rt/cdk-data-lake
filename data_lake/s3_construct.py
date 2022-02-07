@@ -1,8 +1,8 @@
-from constructs import Construct
 import aws_cdk as cdk
-import aws_cdk.aws_s3 as s3
-import aws_cdk.aws_kms as kms
 import aws_cdk.aws_iam as iam
+import aws_cdk.aws_kms as kms
+import aws_cdk.aws_s3 as s3
+from constructs import Construct
 
 
 class S3Construct(Construct):
@@ -55,22 +55,6 @@ class S3Construct(Construct):
             )
         )
 
-        self.logs_bucket = s3.Bucket(
-            self,
-            id=f"{env_name}-LogsBucket",
-            access_control=s3.BucketAccessControl.LOG_DELIVERY_WRITE,
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL,
-            bucket_key_enabled=True,
-            bucket_name=f"{env_name}-logs",
-            encryption=s3.BucketEncryption.KMS,
-            encryption_key=self.s3_kms_key,
-            public_read_access=False,
-            removal_policy=cdk.RemovalPolicy.DESTROY,
-            versioned=True,
-            object_ownership=s3.ObjectOwnership.BUCKET_OWNER_PREFERRED,
-            auto_delete_objects=True
-        )
-
         self.scripts_bucket = s3.Bucket(
             self,
             id=f"{env_name}-ScriptsBucket",
@@ -83,19 +67,10 @@ class S3Construct(Construct):
             auto_delete_objects=True
         )
 
-        self.query_bucket = self.create_bucket(
-            f"{env_name}-QueryBucket",
-            f"{env_name}-query",
-            self.s3_kms_key,
-            self.logs_bucket,
-            ingest_lifecycle
-        )
-
         self.ingest_bucket = self.create_bucket(
             f"{env_name}-IngestBucket",
             f"{env_name}-ingest",
             self.s3_kms_key,
-            self.logs_bucket,
             ingest_lifecycle,
         )
 
@@ -103,7 +78,6 @@ class S3Construct(Construct):
             f"{env_name}-CleanBucket",
             f"{env_name}-clean",
             self.s3_kms_key,
-            self.logs_bucket,
             retention_lifecycle,
         )
 
@@ -111,18 +85,11 @@ class S3Construct(Construct):
             f"{env_name}-PublishBucket",
             f"{env_name}-publish",
             self.s3_kms_key,
-            self.logs_bucket,
             retention_lifecycle,
         )
 
         cdk.CfnOutput(
             self, "KmsKeyArn", value=self.s3_kms_key.key_arn, export_name="S3KmsKeyArn"
-        )
-        cdk.CfnOutput(
-            self,
-            "S3LogsBucketName",
-            value=self.logs_bucket.bucket_name,
-            export_name="LogsBucket",
         )
         cdk.CfnOutput(
             self,
@@ -154,7 +121,6 @@ class S3Construct(Construct):
         bucket_id: str,
         bucket_name: str,
         kms_key: kms.Key,
-        logs_bucket: s3.Bucket,
         lifecycle: s3.LifecycleRule,
     ) -> s3.Bucket:
 
@@ -172,8 +138,6 @@ class S3Construct(Construct):
             removal_policy=cdk.RemovalPolicy.DESTROY,
             versioned=True,
             object_ownership=s3.ObjectOwnership.OBJECT_WRITER,
-            server_access_logs_bucket=logs_bucket,
-            server_access_logs_prefix=bucket_name,
             auto_delete_objects=True
         )
 

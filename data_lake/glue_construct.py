@@ -1,11 +1,11 @@
+from aws_cdk import aws_glue as glue
+from aws_cdk import aws_iam as iam
+from aws_cdk import aws_s3_deployment as s3deploy
 from constructs import Construct
-from aws_cdk import (
-    aws_iam as iam,
-    aws_glue as glue,
-    aws_s3_deployment as s3deploy
-)
+import json
 
 from .s3_construct import S3Construct
+
 
 class GlueConstruct(Construct):
     def __init__(self, scope: Construct, id: str, env_name: str, s3: S3Construct, **kwargs):
@@ -81,6 +81,40 @@ class GlueConstruct(Construct):
                 s3_targets=[
                     glue.CfnCrawler.S3TargetProperty(
                         path=f"s3://{s3.clean_bucket.bucket_name}/{CrimesTable}/"
+                    )
+                ]
+            )
+        )
+
+        self.analyze_job = glue.CfnJob(
+            self,
+            id=f"{env_name}-AnalyzeJob",
+            name=f"{env_name}-AnalyzeJob",
+            role=self.glue_role.role_arn,
+            command=glue.CfnJob.JobCommandProperty(
+                name='glueetl',
+                python_version='3',
+                script_location=f's3://{s3.scripts_bucket.bucket_name}/glue/analyze.py'
+            ),
+            default_arguments={
+                "--source_database": s3.clean_bucket.bucket_name,
+                "--source_table": CrimesTable,
+                "--target_bucket": s3.publish_bucket.bucket_name,
+                "--enable-continuous-cloudwatch-log": "true"
+            },
+            glue_version="3.0"
+        )
+
+        self.publish_crawler = glue.CfnCrawler(
+            self,
+            id=f"{env_name}-PublishCrawler",
+            name=f"{env_name}-PublishCrawler",
+            role=self.glue_role.role_arn,
+            database_name=s3.publish_bucket.bucket_name,
+            targets=glue.CfnCrawler.TargetsProperty(
+                s3_targets=[
+                    glue.CfnCrawler.S3TargetProperty(
+                        path=f"s3://{s3.publish_bucket.bucket_name}/crime_trends/"
                     )
                 ]
             )
