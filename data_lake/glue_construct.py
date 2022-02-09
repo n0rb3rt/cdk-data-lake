@@ -8,7 +8,9 @@ from .s3_construct import S3Construct
 
 
 class GlueConstruct(Construct):
-    def __init__(self, scope: Construct, id: str, env_name: str, s3: S3Construct, **kwargs):
+    def __init__(
+        self, scope: Construct, id: str, env_name: str, s3: S3Construct, **kwargs
+    ):
         super().__init__(scope, id, **kwargs)
 
         CrimesTable = "crimes"
@@ -34,7 +36,7 @@ class GlueConstruct(Construct):
             f"{env_name}-DeployGlueJobs",
             sources=[s3deploy.Source.asset("./scripts/glue")],
             destination_bucket=s3.scripts_bucket,
-            destination_key_prefix="glue"
+            destination_key_prefix="glue",
         )
 
         self.ingest_crawler = glue.CfnCrawler(
@@ -49,7 +51,7 @@ class GlueConstruct(Construct):
                         path=f"s3://{s3.ingest_bucket.bucket_name}/{CrimesTable}/"
                     )
                 ]
-            )
+            ),
         )
 
         self.clean_job = glue.CfnJob(
@@ -58,17 +60,19 @@ class GlueConstruct(Construct):
             name=f"{env_name}-CleanJob",
             role=self.glue_role.role_arn,
             command=glue.CfnJob.JobCommandProperty(
-                name='glueetl',
-                python_version='3',
-                script_location=f's3://{s3.scripts_bucket.bucket_name}/glue/clean.py'
+                name="glueetl",
+                python_version="3",
+                script_location=f"s3://{s3.scripts_bucket.bucket_name}/glue/clean.py",
             ),
             default_arguments={
                 "--source_database": s3.ingest_bucket.bucket_name,
                 "--source_table": CrimesTable,
                 "--target_bucket": s3.clean_bucket.bucket_name,
-                "--enable-continuous-cloudwatch-log": "true"
+                "--enable-continuous-cloudwatch-log": "true",
+                # "--job-bookmark-option": "job-bookmark-enable",
+                "--JOB_NAME": f"{env_name}-CleanJob",
             },
-            glue_version="3.0"
+            glue_version="3.0",
         )
 
         self.clean_crawler = glue.CfnCrawler(
@@ -83,7 +87,7 @@ class GlueConstruct(Construct):
                         path=f"s3://{s3.clean_bucket.bucket_name}/{CrimesTable}/"
                     )
                 ]
-            )
+            ),
         )
 
         self.analyze_job = glue.CfnJob(
@@ -92,17 +96,19 @@ class GlueConstruct(Construct):
             name=f"{env_name}-AnalyzeJob",
             role=self.glue_role.role_arn,
             command=glue.CfnJob.JobCommandProperty(
-                name='glueetl',
-                python_version='3',
-                script_location=f's3://{s3.scripts_bucket.bucket_name}/glue/analyze.py'
+                name="glueetl",
+                python_version="3",
+                script_location=f"s3://{s3.scripts_bucket.bucket_name}/glue/analyze.py",
             ),
             default_arguments={
                 "--source_database": s3.clean_bucket.bucket_name,
                 "--source_table": CrimesTable,
                 "--target_bucket": s3.publish_bucket.bucket_name,
-                "--enable-continuous-cloudwatch-log": "true"
+                "--enable-continuous-cloudwatch-log": "true",
+                # "--job-bookmark-option": "job-bookmark-enable",
+                "--JOB_NAME": f"{env_name}-AnalyzeJob",
             },
-            glue_version="3.0"
+            glue_version="3.0",
         )
 
         self.publish_crawler = glue.CfnCrawler(
@@ -117,5 +123,5 @@ class GlueConstruct(Construct):
                         path=f"s3://{s3.publish_bucket.bucket_name}/crime_trends/"
                     )
                 ]
-            )
+            ),
         )
