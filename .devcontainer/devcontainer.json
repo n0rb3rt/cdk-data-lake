@@ -14,5 +14,7 @@
     "ms-python.python",
     "ms-python.vscode-pylance"
   ],
-  "postCreateCommand": "pip install -r requirements-dev.txt"
+  "mounts": [
+    "source=${env:HOME}${env:USERPROFILE}/.aws,target=/home/glue_user/.aws,type=bind"
+  ]
 }
