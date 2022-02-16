@@ -3,7 +3,7 @@
 
 This project demonstrates a data lake that aggregates data from silos of MySQL databases using DMS and Glue.  It uses crimes data from the City of Chicago that is prepared to represent disconnected police precincts.  The goal was to learn and be curious about building a data lake using CDK, and demonstrating the value of automation, access control, data security, and features of the included services: S3, Glue Catalog & ETL, Athena, Quicksight, and DMS.
 
-<img src="./resources/data_lake_architecture.jpg" alt="architecture" width="465"/>
+<img src="./resources/data_lake_architecture.jpg" alt="architecture" width="500"/>
 <img src="./resources/crimes_graph.png" alt="architecture" width="500"/>
 
 ## Visual Studio Code
