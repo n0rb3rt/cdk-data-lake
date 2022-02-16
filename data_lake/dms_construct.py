@@ -91,6 +91,29 @@ class DmsConstruct(Construct):
                             "table-name": "crimes"
                         },
                         "rule-action": "include"
+                    },
+                    {
+                        "rule-type": "transformation",
+                        "rule-id": "2",
+                        "rule-name": "2",
+                        "rule-action": "rename",
+                        "rule-target": "schema",
+                        "object-locator": {
+                            "schema-name": "precinct1"
+                        },
+                        "value": "crimes"
+                    },
+                    {
+                        "rule-type": "transformation",
+                        "rule-id": "3",
+                        "rule-name": "3",
+                        "rule-action": "rename",
+                        "rule-target": "table",
+                        "object-locator": {
+                            "schema-name": "precinct1",
+                            "table-name": "crimes"
+                        },
+                        "value": "precinct=001"
                     }
                 ]
             })
