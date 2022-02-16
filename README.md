@@ -1,8 +1,15 @@
 
-# Welcome to your CDK Python project!
+# Data Lake with CDK
 
-You should explore the contents of this project. It demonstrates a CDK app with an instance of a stack (`data_lake_stack`)
-which contains an example Data Lake and Glue ETL pipeline.
+This project demonstrates a data lake that aggregates data from silos of MySQL databases using DMS and Glue.  It uses crimes data from the City of Chicago that is prepared to represent disconnected police precincts.  The goal was to learn and be curious about building a data lake using CDK, and demonstrating the value of automation, access control, data security, and features of the included services: S3, Glue Catalog & ETL, Athena, Quicksight, and DMS.
+
+![](/resources/data_lake_architecture.jpg)
+
+## Visual Studio Code
+
+The project is configured to use VS Code's `Remote-Container: Reopen in Container` feature for developing inside the AWS Glue Docker image and provide support for developing Glue jobs and running interactive Jupyter notebooks in the IDE.
+
+## CDK Development
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 
