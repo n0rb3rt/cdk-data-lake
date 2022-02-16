@@ -1,13 +1,12 @@
-from constructs import Construct
-from aws_cdk import aws_rds as rds
-from aws_cdk import aws_iam as iam
 from aws_cdk import aws_ec2 as ec2
-import aws_cdk as cdk
+from aws_cdk import aws_rds as rds
+from constructs import Construct
 
 from data_lake.ec2_construct import EC2Construct
 
-from .vpc_construct import VpcConstruct
 from .s3_construct import S3Construct
+from .vpc_construct import VpcConstruct
+
 
 class RdsConstruct(Construct):
     def __init__(self, scope: Construct, id: str, env_name: str, vpc_struct: VpcConstruct, ec2_struct: EC2Construct, s3_struct: S3Construct, **kwargs):

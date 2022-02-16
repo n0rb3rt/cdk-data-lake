@@ -2,7 +2,6 @@ from aws_cdk import aws_glue as glue
 from aws_cdk import aws_iam as iam
 from aws_cdk import aws_s3_deployment as s3deploy
 from constructs import Construct
-import json
 
 from .s3_construct import S3Construct
 

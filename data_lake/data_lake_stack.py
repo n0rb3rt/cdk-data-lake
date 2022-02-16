@@ -1,8 +1,8 @@
 from aws_cdk import Stack
 from constructs import Construct
+
 from data_lake.dms_construct import DmsConstruct
 from data_lake.ec2_construct import EC2Construct
-
 from data_lake.rds_construct import RdsConstruct
 
 from .glue_construct import GlueConstruct

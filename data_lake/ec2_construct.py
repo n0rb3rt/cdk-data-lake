@@ -1,9 +1,9 @@
+import aws_cdk as cdk
+from aws_cdk import aws_ec2 as ec2
 from constructs import Construct
 
-from aws_cdk import aws_ec2 as ec2
-import aws_cdk as cdk
-
 from .vpc_construct import VpcConstruct
+
 
 class EC2Construct(Construct):
     def __init__(self, scope: Construct, id: str, env_name: str, vpc_struct: VpcConstruct, **kwargs):
