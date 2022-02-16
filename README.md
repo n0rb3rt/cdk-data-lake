@@ -3,11 +3,32 @@
 
 This project demonstrates a data lake that aggregates data from silos of MySQL databases using DMS and Glue.  It uses crimes data from the City of Chicago that is prepared to represent disconnected police precincts.  The goal was to learn and be curious about building a data lake using CDK, and demonstrating the value of automation, access control, data security, and features of the included services: S3, Glue Catalog & ETL, Athena, Quicksight, and DMS.
 
-![](/resources/data_lake_architecture.jpg)
+<img src="./resources/data_lake_architecture.jpg" alt="architecture" width="465"/>
+<img src="./resources/crimes_graph.png" alt="architecture" width="500"/>
 
 ## Visual Studio Code
 
-The project is configured to use VS Code's `Remote-Container: Reopen in Container` feature for developing inside the AWS Glue Docker image and provide support for developing Glue jobs and running interactive Jupyter notebooks in the IDE.
+The project is configured to use VS Code's `Remote-Container: Reopen in Container` feature for developing inside the AWS Glue Docker image and provide code hints for Glue jobs and running interactive Jupyter notebooks in the IDE.
+
+## Loading data
+
+Deploy the environment:
+```bash
+cdk deploy
+```
+Connect to the bastion host:
+```bash
+aws ssm start-session --target <bastion-id>
+```
+Download data (may take ~1.5 hrs @ 300k/s):
+```bash
+sh ./download_crimes_data.sh
+```
+Run sql script (host/pass from secrets manager console):
+```
+mysql -h <db_host> -u admin -P <db_port> -p < crimes_table.sql
+Enter password: <db_passwd>
+```
 
 ## CDK Development
 

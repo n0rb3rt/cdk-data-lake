@@ -18,6 +18,11 @@ class EC2Construct(Construct):
             vpc=vpc_struct.vpc,
             subnet_selection=ec2.SubnetSelection(
                 subnet_type=ec2.SubnetType.PUBLIC
+            ),
+            init=ec2.CloudFormationInit.from_elements(
+                ec2.InitPackage.yum("mysql"),
+                ec2.InitFile.from_asset("/home/ssm-user/download_crimes_data.sh", "./scripts/bash/download_crimes_data.sh"),
+                ec2.InitFile.from_asset("/home/ssm-user/crimes_table.sql", "./scripts/sql/crimes_table.sql"),
             )
         )
 
