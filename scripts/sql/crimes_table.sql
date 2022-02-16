@@ -1,6 +1,6 @@
-CREATE DATABASE IF NOT EXISTS octank;
+CREATE DATABASE IF NOT EXISTS precinct1;
 
-CREATE TABLE IF NOT EXISTS octank.crimes (
+CREATE TABLE IF NOT EXISTS precinct1.crimes (
     `id` bigint,
     `case number` varchar(255),
     `date` varchar(255),
@@ -26,6 +26,6 @@ CREATE TABLE IF NOT EXISTS octank.crimes (
 );
 
 LOAD DATA FROM S3 PREFIX 's3://jnme-ab3-v1-ingest/crimes/precinct=001'
-INTO TABLE octank.crimes
+INTO TABLE precinct1.crimes
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
 IGNORE 1 LINES;

@@ -89,9 +89,6 @@ class S3Construct(Construct):
         )
 
         cdk.CfnOutput(
-            self, "KmsKeyArn", value=self.s3_kms_key.key_arn, export_name="S3KmsKeyArn"
-        )
-        cdk.CfnOutput(
             self,
             "S3ScriptsBucketName",
             value=self.scripts_bucket.bucket_name,

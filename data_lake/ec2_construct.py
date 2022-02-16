@@ -6,7 +6,7 @@ import aws_cdk as cdk
 from .vpc_construct import VpcConstruct
 
 class EC2Construct(Construct):
-    def __init__(self, scope: Construct, id: str, env_name: str, keypair_name: str, vpc_struct: VpcConstruct, **kwargs):
+    def __init__(self, scope: Construct, id: str, env_name: str, vpc_struct: VpcConstruct, **kwargs):
         super().__init__(scope, id, **kwargs)
 
         self.bastion = ec2.BastionHostLinux(

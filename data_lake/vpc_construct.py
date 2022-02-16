@@ -1,6 +1,5 @@
-from constructs import Construct
-import aws_cdk as cdk
 import aws_cdk.aws_ec2 as ec2
+from constructs import Construct
 
 
 class VpcConstruct(Construct):
@@ -55,52 +54,8 @@ class VpcConstruct(Construct):
             service=ec2.InterfaceVpcEndpointAwsService.KMS,
             security_groups=[self.security_group]
         )
-
-        cdk.CfnOutput(
-            self,
-            'Vpc',
-            value=self.vpc.vpc_id,
-            export_name='VpcId'
-        )
-        cdk.CfnOutput(
-            self,
-            'VpcAvailabilityZone1',
-            value=self.vpc.availability_zones[0],
-            export_name='VpcAvailabilityZone1'
-        )
-        cdk.CfnOutput(
-            self,
-            'VpcAvailabilityZone2',
-            value=self.vpc.availability_zones[1],
-            export_name='VpcAvailabilityZone2'
-        )
-        cdk.CfnOutput(
-            self,
-            'VpcPrivateSubnet',
-            value=self.vpc.private_subnets[0].subnet_id,
-            export_name='VpcPrivateSubnet'
-        )
-        cdk.CfnOutput(
-            self,
-            'VpcPublicSubnet',
-            value=self.vpc.public_subnets[0].subnet_id,
-            export_name='VpcPublicSubnet'
-        )
-        cdk.CfnOutput(
-            self,
-            'VpcRouteTable1',
-            value=self.vpc.private_subnets[0].route_table.route_table_id,
-            export_name='VpcPrivateRouteTable'
-        )
-        cdk.CfnOutput(
-            self,
-            'VpcRouteTable2',
-            value=self.vpc.public_subnets[0].route_table.route_table_id,
-            export_name='VpcPublicRouteTable'
-        )
-        cdk.CfnOutput(
-            self,
-            'SecurityGroup',
-            value=self.security_group.security_group_id,
-            export_name='VpcSecurityGroupId'
+        self.vpc.add_interface_endpoint(
+            f"{env_name}-RdsEndpoint",
+            service=ec2.InterfaceVpcEndpointAwsService.RDS,
+            security_groups=[self.security_group]
         )
