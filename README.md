@@ -44,16 +44,17 @@ mysql -h <db_host> -u admin -P <db_port> -p < crimes_table.sql
 Enter password: <db_passwd>
 ```
 
-Run the workflow
+Run the workflow of transformation jobs:
 
-    In the AWS Glue console, start the `<env_name>-CrawlIngest` trigger to start the workflow of transformation jobs.
+- open the AWS Glue console
+- start the `<env_name>-CrawlIngest` trigger
 
+(Optional) Run database migration:
 
-(Optional) Run database migration
+- open the Database Migration Service console
+- run the `<env_name>-replicationtask` 
 
-    In the Database Migration Service console, run the `<env_name>-replicationtask` to demonstrate replicating data from the MySQL source database for precinct1.  
-
-    The data for all precincts was already prepared by the `download_crimes_data.sh` script to simulate this step.
+<i>This demonstrates migrating data from the precinct1 MySQL database.  The data for all precincts was already prepared by the `download_crimes_data.sh` script to simulate this step.</i>
 
 
 # CDK Development
