@@ -20,6 +20,8 @@ Configure a unique environment name in cdk.json:
 ```
 Deploy the environment:
 ```bash
+brew install python@3.7
+$(brew --prefix python@3.7)/bin/python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cdk deploy
@@ -29,19 +31,15 @@ Connect to the bastion host:
 aws ssm start-session --target <bastion-id>
 cd /home/ssm-user
 ```
-Download data and store in S3 (1.6G - may take some time):
+Download data and store in S3 and MySQL (~1.6G - may take some time):
 ```bash
 export AWS_ACCESS_KEY_ID=<access_key>
 export AWS_SECRET_ACCESS_KEY=<secret_key>
 export AWS_DEFAULT_REGION=<region>
 sh ./download_crimes_data.sh
 Bucket: <ingest_bucket>
-```
-Run sql script (host/pass from secrets manager console):
-```
-sudo yum install mysql
-mysql -h <db_host> -u admin -P <db_port> -p < crimes_table.sql
-Enter password: <db_passwd>
+DB Host: <db_host> #from Secrets Manager console
+DB Password: <db_password> #from Secrets Manager console
 ```
 
 Run the workflow of transformation jobs:

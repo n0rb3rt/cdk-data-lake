@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS precinct1.crimes (
     `location` varchar(255)
 );
 
-LOAD DATA FROM S3 PREFIX 's3://jnme-ab3-v1-ingest/crimes/precinct=001'
+LOAD DATA FROM S3 PREFIX 's3://<bucket>/crimes/precinct=001'
 INTO TABLE precinct1.crimes
 FIELDS TERMINATED BY ',' ENCLOSED BY '"'
-IGNORE 1 LINES;
+
