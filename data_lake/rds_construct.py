@@ -28,5 +28,5 @@ class RdsConstruct(Construct):
             s3_import_buckets=[s3_struct.ingest_bucket],
         )
 
-        self.mysql_cluster.connections.allow_default_port_from(ec2_struct.bastion.instance)
+        # self.mysql_cluster.connections.allow_default_port_from(ec2_struct.bastion.instance)
         self.mysql_cluster.connections.allow_default_port_internally

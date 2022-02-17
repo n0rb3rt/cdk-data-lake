@@ -6,31 +6,54 @@ This project demonstrates a data lake that aggregates data from silos of MySQL d
 <img src="./resources/data_lake_architecture.jpg" alt="architecture" width="500"/>
 <img src="./resources/crimes_graph.png" alt="architecture" width="500"/>
 
+# Getting started
+
 ## Visual Studio Code
 
-The project is configured to use VS Code's `Remote-Container: Reopen in Container` feature for developing inside the AWS Glue Docker image and provide code hints for Glue jobs and running interactive Jupyter notebooks in the IDE.
+The project is configured to use VS Code's Remote Container extension if installed.  Use the `Remote-Container: Reopen in Container` command to develop inside the AWS Glue Docker image and enable code hints for Glue jobs or running interactive Jupyter notebooks in the IDE.
 
 ## Loading data
 
+Configure a unique environment name in cdk.json:
+```json
+{"context": {"env_name": "<unique_env_name>"}}
+```
 Deploy the environment:
 ```bash
+source .venv/bin/activate
+pip install -r requirements.txt
 cdk deploy
 ```
 Connect to the bastion host:
 ```bash
 aws ssm start-session --target <bastion-id>
+cd /home/ssm-user
 ```
-Download data (may take ~1.5 hrs @ 300k/s):
+Download data and store in S3 (1.6G - may take some time):
 ```bash
+export AWS_ACCESS_KEY_ID=<access_key>
+export AWS_SECRET_ACCESS_KEY=<secret_key>
+export AWS_DEFAULT_REGION=<region>
 sh ./download_crimes_data.sh
+Bucket: <ingest_bucket>
 ```
 Run sql script (host/pass from secrets manager console):
 ```
+sudo yum install mysql
 mysql -h <db_host> -u admin -P <db_port> -p < crimes_table.sql
 Enter password: <db_passwd>
 ```
 
-## CDK Development
+Run the workflow
+```
+In the AWS Glue console, start the `<env_name>-CrawlIngest` trigger to start the workflow of transformation jobs.
+```
+(Optional) Run database migration
+```
+In the Database Migration Service console, run the `<env_name>-replicationtask` to demonstrate replicating data from the MySQL source database for precinct1.  The data for all precincts was already prepared by the `download_crimes_data.sh` script to simulate this step.
+```
+
+# CDK Development
 
 The `cdk.json` file tells the CDK Toolkit how to execute your app.
 

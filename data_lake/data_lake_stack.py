@@ -16,7 +16,10 @@ class DataLakeStack(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        env_name = "jnme-ab3-v1"
+        
+        env_name = self.node.try_get_context("env_name")
+        if env_name is None:
+            raise Exception("context env_name must be defined")
 
         # Data Lake
         s3 = S3Construct(self, f"{env_name}-S3Construct", env_name)

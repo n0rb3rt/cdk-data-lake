@@ -23,6 +23,7 @@
     "@aws-cdk/core:target-partitions": [
       "aws",
       "aws-cn"
-    ]
+    ],
+    "env_name": "jnme-ab3-v1"
   }
 }
