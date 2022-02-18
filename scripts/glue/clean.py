@@ -38,7 +38,8 @@ transform1 = DynamicFrame.fromDF(
     name="transform1",
     dataframe=datasource0.toDF()
     .withColumn("date", to_timestamp("date", date_format))
-    .withColumn("updated on", to_timestamp("updated on", date_format)),
+    .withColumn("updated on", to_timestamp("updated on", date_format))
+    .repartition("year")
 )
 
 applymapping2 = ApplyMapping.apply(

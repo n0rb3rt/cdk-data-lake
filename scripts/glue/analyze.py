@@ -50,7 +50,8 @@ window1 = DynamicFrame.fromDF(
         "monthly_change",
         (col("monthly_count") - col("prev_count")) / col("monthly_count"),
     )
-    .drop("prev_month", "prev_count"),
+    .drop("prev_month", "prev_count")
+    .coalesce(1)
 )
 
 datasink2 = glueContext.write_dynamic_frame.from_options(
